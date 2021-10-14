@@ -1,6 +1,22 @@
 #!/bin/bash
 
 
+help() {
+	cat <<HELP
+$0 <options>
+
+Options:
+	--builddir dir   Directory where WebRTC was built. Eg, out/Debug.
+	--outdir dir     Where to create the resulting .tar.xz
+        --name name      Name for the archive (eg, gcc or clang)
+	--version ver    Version for the archive
+
+Example:
+	$0 --builddir /webrtc-build/src/out/Debug-gcc/ --name gcc --outdir /webrtc-build/out/
+
+HELP
+	exit 1
+}
 
 while [[ $# -gt 0 ]] ; do
 	arg="$1"
@@ -20,6 +36,11 @@ while [[ $# -gt 0 ]] ; do
 			shift
 			shift
 			;;
+		--version)
+			version="$2"
+			shift
+			shift
+			;;
 		*)
 			echo "Unknown argument!"
 			exit 1
@@ -29,10 +50,9 @@ while [[ $# -gt 0 ]] ; do
 done
 
 
-
-
-#out_dir="$1"
-#archive_name="$2"
+if [ -z "$out_dir" -o -z "$archive_dir" -o -z "$archive_name" ] ; then
+	help
+fi
 
 source_dir="$out_dir/../.."
 start_dir=`pwd`
@@ -93,7 +113,7 @@ include="$webrtc/include/webrtc"
 
 mkdir -p "$webrtc" "$webrtc/lib" "$webrtc/debug/lib" "$webrtc/include/webrtc/test" 
 #mkdir -p "$webrtc/include/webrtc/modules/audio_"
-mkdir -p "$webrtc/share/webrtc"
+mkdir -p "$webrtc/share/webrtc" "$include/modules"
 
 
 cp -v "$out_dir/obj/libwebrtc.a"                    "$webrtc/lib"
@@ -107,14 +127,19 @@ copy_headers_rec "$source_dir"                                               "co
 copy_headers_rec "$source_dir/third_party/googletest/src/googlemock/include" "gmock"             "$include/"
 copy_headers_rec "$source_dir/third_party/googletest/src/googletest/include" "gtest"             "$include/"
 copy_headers_rec "$source_dir/modules"                                       "audio_processing"  "$include/modules/"
+copy_headers_rec "$source_dir/modules"                                       "include"           "$include/modules/"
 copy_headers_rec "$source_dir"                                               "rtc_base"          "$include/"
 copy_headers_rec "$source_dir"                                               "system_wrappers"   "$include/"
 
 
 echo "*** Generated in $temp_root"
 cd "$temp_root"
-timestamp=`repo_date "$source_dir"`
-destfile="$archive_dir/webrtc-${timestamp}-${archive_name}-linux.tar.xz"
+
+if [ -z "$version" ] ; then
+	version=`repo_date "$source_dir"`
+fi
+
+destfile="$archive_dir/webrtc-${version}-${archive_name}-linux.tar.xz"
 
 echo "Compressing..."
 export XZ_OPT=-T0
