@@ -40,8 +40,8 @@ RUN /webrtc-build/src/build/install-build-deps.sh --no-prompt
 # Undo our changes, so that 'gclient sync' doesn't complain later.
 RUN cd /webrtc-build/src/build && git checkout install-build-deps.sh
 
-COPY scripts/build.sh    /webrtc-build/
-COPY scripts/package.sh  /webrtc-build/
+#COPY scripts/build.sh    /webrtc-build/
+#COPY scripts/package.sh  /webrtc-build/
 
 
 USER webrtc
