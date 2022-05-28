@@ -1,10 +1,16 @@
 #!/bin/bash
-file="$1"
-base=`basename "$file"`
 
 
-sha=`sha512sum "$file" | awk '{print $1}'`
-aws s3 cp --acl public-read "$file" "s3://athena-public/dependencies/vcpkg/$base"
-echo ""
-echo "Uploaded to: https://athena-public.s3.eu-west-3.amazonaws.com/dependencies/vcpkg/$base"
-echo "SHA512     : $sha"
+for file in "$@" ; do
+	if [ -f "$file" ] ; then
+		base=`basename "$file"`
+
+		sha=`sha512sum "$file" | awk '{print $1}'`
+		aws s3 cp --acl public-read "$file" "s3://athena-public/dependencies/vcpkg/$base"
+		echo ""
+		echo "Uploaded to: https://athena-public.s3.eu-west-3.amazonaws.com/dependencies/vcpkg/$base"
+		echo "SHA512     : $sha"
+	else
+		echo "File doesn't exist: $file"
+	fi
+done
