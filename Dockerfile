@@ -38,6 +38,7 @@ RUN sed -i 's/snapcraft/snapcraft_disabled/g' /webrtc-build/src/build/install-bu
 RUN /webrtc-build/src/build/install-build-deps.sh --no-prompt
 
 # Undo our changes, so that 'gclient sync' doesn't complain later.
+RUN git config --global --add safe.directory /webrtc-build/src/build
 RUN cd /webrtc-build/src/build && git checkout install-build-deps.sh
 
 #COPY scripts/build.sh    /webrtc-build/
