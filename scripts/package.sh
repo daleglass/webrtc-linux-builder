@@ -86,26 +86,28 @@ copy_headers() {
 }
 
 
-copy_headers_rec() {
-	base="$1"
-	src="$2"
-	dst="$3"
+copy_headers_rec2() {
+	src="$1"
+	dst="$2"
 
 	curdir=`pwd`
 
 
-	echo "Copying headers, base $base, subdir $src"
+	echo "Copying headers, $src => $dst"
 
-	if [ ! -d "$base/$src" ] ; then
-		echo "Failed to find $base/$src!"
+	if [ ! -d "$src" ] ; then
+		echo "Failed to find $src!"
 		exit 1
 	fi
 
-	cd "$base"
 	mkdir -p "$dst"
-	find "$src" -name '*.h' -exec cp -v --parents '{}' "$dst" ';'
+
+
+	cd "$src"
+	find . -name '*.h' -exec cp --parents '{}' "$dst/" ';'
 	cd "$curdir"
 }
+
 
 temp_root=`mktemp -d`
 webrtc="$temp_root/webrtc"
@@ -121,15 +123,26 @@ cp -v "$out_dir/obj/libwebrtc.a"                    "$webrtc/debug/lib"
 cp -v "$source_dir/test/gmock.h"                    "$webrtc/include/webrtc/test/"
 cp -v "$source_dir/LICENSE"                         "$webrtc/share/webrtc/copyright"
 
-copy_headers_rec "$source_dir/third_party/abseil-cpp"                        "absl"              "$include/"
-copy_headers_rec "$source_dir"                                               "api"               "$include/"
-copy_headers_rec "$source_dir"                                               "common_audio"      "$include/"
-copy_headers_rec "$source_dir/third_party/googletest/src/googlemock/include" "gmock"             "$include/"
-copy_headers_rec "$source_dir/third_party/googletest/src/googletest/include" "gtest"             "$include/"
-copy_headers_rec "$source_dir/modules"                                       "audio_processing"  "$include/modules/"
-copy_headers_rec "$source_dir/modules"                                       "include"           "$include/modules/"
-copy_headers_rec "$source_dir"                                               "rtc_base"          "$include/"
-copy_headers_rec "$source_dir"                                               "system_wrappers"   "$include/"
+# As in cmake/ports/webrtc/copy-VCPKG-file-win.cmd
+cp -v "$source_dir/common_types.h"                  "$include/"
+copy_headers_rec2 "$source_dir/api"                               "$include/api"
+copy_headers_rec2 "$source_dir/audio"                             "$include/audio"
+copy_headers_rec2 "$source_dir/base"                              "$include/base"
+copy_headers_rec2 "$source_dir/call"                              "$include/call"
+copy_headers_rec2 "$source_dir/common_audio"                      "$include/common_audio"
+copy_headers_rec2 "$source_dir/common_video"                      "$include/common_video"
+copy_headers_rec2 "$source_dir/logging"                           "$include/logging"
+copy_headers_rec2 "$source_dir/media"                             "$include/media"
+copy_headers_rec2 "$source_dir/modules"                           "$include/modules"
+copy_headers_rec2 "$source_dir/p2p"                               "$include/p2p"
+copy_headers_rec2 "$source_dir/pc"                                "$include/pc"
+copy_headers_rec2 "$source_dir/rtc_base"                          "$include/rtc_base"
+copy_headers_rec2 "$source_dir/rtc_tools"                         "$include/rtc_tools"
+copy_headers_rec2 "$source_dir/stats"                             "$include/stats"
+copy_headers_rec2 "$source_dir/system_wrappers"                   "$include/system_wrappers"
+copy_headers_rec2 "$source_dir/third_party/abseil-cpp/absl"       "$include/absl"
+copy_headers_rec2 "$source_dir/third_party/libyuv/include/libyuv" "$include/libyuv"
+copy_headers_rec2 "$source_dir/video"                             "$include/video"
 
 
 echo "*** Generated in $temp_root"
@@ -148,15 +161,5 @@ echo "Archive written to: $destfile"
 
 sha512sum "$destfile"
 rm -rf "$temp_root"
-
-
-#copy_headers_rec 
-#cp -v  $source_dir/modules/audio_processing/*.h     "$webrtc/include/webrtc/modules/"
-#cp -v  $source_dir/rtc_base/*.h                     "$webrtc/include/webrtc/rtc_base/"
-#cp -v  $source_dir/rtc_base/numerics/*.h            "$webrtc/include/webrtc/rtc_base/numerics"
-
-
-
-
 
 
