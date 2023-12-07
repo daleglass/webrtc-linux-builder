@@ -1,7 +1,7 @@
-diff --git a/install-build-deps.sh b/install-build-deps.sh
+diff --git a/build/install-build-deps.sh b/build/install-build-deps.sh
 index dc92d113a..44d37eda4 100755
---- a/install-build-deps.sh
-+++ b/install-build-deps.sh
+--- a/build/install-build-deps.sh
++++ b/build/install-build-deps.sh
 @@ -34,13 +34,13 @@ build_apt_package_list() {
    echo "Building apt package list." >&2
    apt-cache dumpavail | \

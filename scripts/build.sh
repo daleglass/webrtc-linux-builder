@@ -79,8 +79,11 @@ action_done=
 if [ -z "$no_patch" ] ; then
 
 	msg "Resetting tree"
-	cd "$root/src"      && git reset --hard
-	cd "$root/src/base" && git reset --hard
+	cd "$root/src"
+	gclient revert
+
+#	cd "$root/src"      && git reset --hard
+#	cd "$root/src/base" && git reset --hard
 
 
 
