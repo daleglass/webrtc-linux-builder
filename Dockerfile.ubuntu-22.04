@@ -36,7 +36,12 @@ USER root
 # We shouldn't actually need it for anything.
 RUN sed -i 's/snapcraft/snapcraft_disabled/g' /webrtc-build/src/build/install-build-deps.sh
 
-#RUN python2 /webrtc-build/src/build/install-build-deps.sh --no-prompt --unsupported
+# Ubuntu 22.04 seems to have a new, pickier Python 3 that doesn't like the whitespace in
+# the script embedded in install-build-deps.sh
+COPY patches/install-build-deps-python3.patch /webrtc-build
+RUN cd /webrtc-build/src && patch -p1 < /webrtc-build/install-build-deps-python3.patch
+
+RUN /webrtc-build/src/build/install-build-deps.sh --no-prompt --unsupported
 
 # Undo our changes, so that 'gclient sync' doesn't complain later.
 RUN git config --global --add safe.directory /webrtc-build/src/build
